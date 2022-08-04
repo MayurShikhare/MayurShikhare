@@ -1,6 +1,6 @@
 - 👋 Hi, I’m @MayurShikhare
 - 👀 I’m interested in front end web development and web design.
-- 🌱 I’m currently learning react.js
+- 🌱 I’m currently wworking with react.js to build websites
 - 💞️ I’m looking to collaborate on any front end web technology
 - 📫 you can reach me via below function :)
 const reachMeOut = () => {
