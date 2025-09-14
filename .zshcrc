@@ -1,6 +1,6 @@
 # git alias for short status
 alias gs='git status'
-alias gl='git log --oneline'
+alias gl='echo "Shortcut: git log --oneline"; git log --oneline'
 alias glog='git log'
 alias glg='git log --graph --oneline --all --decorate'
 alias gaa='git add .'
@@ -114,6 +114,9 @@ alias_desc[gundo]="Undo last commit (mixed)"
 
 # function to show alias hints on the right side
 function zle-line-pre-redraw() {
+  if [[ "$git_hint_active" != true ]]; then
+    return
+  fi
   local cmd="${BUFFER%% *}"
   local hint="${alias_desc[$cmd]}"
   local len=${#BUFFER}
@@ -136,6 +139,36 @@ function zle-line-pre-redraw() {
   print -Pn "\e8"   # Restore cursor
 }
 
+# Activate the hint system
+git_hint_start() {
+  # zle -N zle-line-pre-redraw
+  zle -N zle-line-pre-redraw
+  echo "Git hint system activated \n"
+}
 
-# Register ZLE hook
-zle -N zle-line-pre-redraw
+# Deactivate the hint system
+git_hint_stop() {
+  zle -D zle-line-pre-redraw
+  echo "Git hint system deactivated"
+}
+
+if [ -d .git ]; then git_hint_start; fi
+
+# --- Toggle function ---
+function git_hint_toggle() {
+  if [[ "$git_hint_active" == true ]]; then
+    git_hint_active=false
+    zle -D zle-line-pre-redraw
+    print -Pn "%F{yellow}Git hints deactivated%f\n"
+    zle reset-prompt  # safely redraw prompt
+    
+  else
+    git_hint_active=true
+    zle -N zle-line-pre-redraw zle-line-pre-redraw
+    print -Pn "%F{green}Git hints activated%f\n"
+    zle reset-prompt  # safely redraw prompt
+  fi
+}
+# --- Bind toggle to Ctrl+Option+G ---
+zle -N git_hint_toggle
+bindkey '\e^G' git_hint_toggle
