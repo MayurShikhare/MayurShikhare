@@ -1,13 +1,22 @@
-- 👋 Hi, I’m @MayurShikhare
+# Welcome 🤗
+
+Hola! Yo soy Mayur, a software engineer specializing in front-end development with React and Next.js.  
+I have 5+ years of professional experience (AEM - 2Y, React - 3Y+) building intuitive and maintainable web applications.
+
+- I enjoy optimizing developer workflows  
+- Experimenting with productivity tools like Zsh, Git aliases, and terminal enhancements
 - 👀 Interested in technologies and design in general.
 - 🌱 currently building AURA - your financial intelligence.
-- 📫 you can reach me via https://mayur-shikhare.netlify.app/
+- 📫 you can find more about me on -> [HERE](https://mayur-shikhare.netlify.app/)
 
-View the full `.zshrc` file [here](https://github.com/MayurShikhare/MayurShikhare/blob/main/.zshcrc)
 
-# My Zsh Configuration
+This repository contains my personal configuration and Git alias setup to help streamline everyday development tasks.
 
-## Git Aliases - some of the most used Git aliases
+View the full `.zshrc` file [here](https://github.com/MayurShikhare/MayurShikhare/blob/main/.zshcrc) or scroll to read more.
+
+### My Zsh Configuration
+
+### Git Aliases - some of the most used Git aliases
 
 ```bash
 alias gs='git status'
@@ -58,7 +67,7 @@ alias gundo='git reset HEAD~1'
 
 
 
-## Descriptions
+### Descriptions
 
 ```bash
 alias_desc[gs]="Show git status"
@@ -106,7 +115,81 @@ alias_desc[gfetchall]="Fetch all remotes"
 alias_desc[gmerge]="Merge branch"
 alias_desc[gundo]="Undo last commit (mixed)"
 ```
+> ⚠️ **Warning:** If you add the function zle-line-pre-redraw to your .zshrc the terminal behaves differently. If the function is active and you paste a command in the terminal and tried to move your cursor, the characters would get deleted. Hence there are additional functions and keybindingsvto activate and deactivate the function. Scroll down to read more about them.
 
+### Function to show alias hints on the right side
+```bash
+function zle-line-pre-redraw() {
+  if [[ "$git_hint_active" != true ]]; then
+    return
+  fi
+  local cmd="${BUFFER%% *}"
+  local hint="${alias_desc[$cmd]}"
+  local len=${#BUFFER}
+  local spaces=8
+  local hint_space=40   # max width of hint
+
+  print -Pn "\e7"   # Save cursor
+
+  if [[ -n "$hint" ]]; then
+    # Move cursor after typed text + spaces
+    printf "%*s" $((len + spaces)) ""
+    # Print hint
+    # print -Pn "%F{yellow}$hint%f"
+    print -Pn "\e[38;2;21;27;35m$hint\e[0m"
+  else
+    # Clear previous hint if no match
+    printf "%*s" $((len + spaces + hint_space)) ""
+  fi
+
+  print -Pn "\e8"   # Restore cursor
+}
+```
+
+### Activate the hint system
+```bash
+git_hint_start() {
+  # zle -N zle-line-pre-redraw
+  zle -N zle-line-pre-redraw
+  echo "Git hint system activated \n"
+}
+```
+
+### Deactivate the hint system
+```bash
+git_hint_stop() {
+  zle -D zle-line-pre-redraw
+  echo "Git hint system deactivated"
+}
+```
+
+### Automatically start if in a git repo
+```bash
+if [ -d .git ]; then git_hint_start; fi
+```
+
+### Toggle function
+```bash
+function git_hint_toggle() {
+  if [[ "$git_hint_active" == true ]]; then
+    git_hint_active=false
+    zle -D zle-line-pre-redraw
+    print -Pn "%F{yellow}Git hints deactivated%f\n"
+    zle reset-prompt  # safely redraw prompt
+    
+  else
+    git_hint_active=true
+    zle -N zle-line-pre-redraw zle-line-pre-redraw
+    print -Pn "%F{green}Git hints activated%f\n"
+    zle reset-prompt  # safely redraw prompt
+  fi
+}
+```
+### Bind toggle to Ctrl+Option+G
+```bash
+zle -N git_hint_toggle
+bindkey '\e^G' git_hint_toggle # Ctrl+Option+G
+```
 <!---
 MayurShikhare/MayurShikhare is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
